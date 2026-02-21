@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ร่วมแสดงความยินดี</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+.logo {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.date {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-bottom: 18px;
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 80px;
+  resize: none;
+}
+
+button {
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+button:disabled {
+  background: #999;
+}
+
+.qr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.qr-box {
+  width: 120px;
+  height: 100px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.radio-option input {
+  width: auto;
+  margin-right: 8px;
+}
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 350px;
+  text-align: center;
+  animation: pop 0.25s ease;
+}
+
+@keyframes pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="logo">LOGO งานแต่ง</div>
+<div class="date">17 กุมภาพันธ์ 2026</div>
+
+<div class="section qr-row">
+  <div class="qr-box">Mini QR</div>
+  <button id="uploadBtn" onclick="goToUpload()">แนบสลิป</button>
+</div>
+
+<div class="section">
+  <label>จำนวนเงิน</label>
+  <input type="number" id="amount">
+</div>
+
+<div class="section">
+  <label>ชื่อ</label>
+  <input type="text" id="name">
+</div>
+
+<div class="section">
+  <label>ฝ่าย</label>
+  <label class="radio-option">
+    <input type="radio" name="side" value="ฝ่ายเจ้าบ่าว">
+    เจ้าบ่าว
+  </label>
+  <label class="radio-option">
+    <input type="radio" name="side" value="ฝ่ายเจ้าสาว">
+    เจ้าสาว
+  </label>
+</div>
+
+<div class="section">
+  <label>สะดวกร่วมงานหรือไม่?</label>
+  <label class="radio-option">
+    <input type="radio" name="attendance" value="สะดวก">
+    สะดวก
+  </label>
+  <label class="radio-option">
+    <input type="radio" name="attendance" value="ไม่สะดวก">
+    ไม่สะดวก
+  </label>
+</div>
+
+<div class="section">
+  <label>คำอวยพร</label>
+  <textarea id="message"></textarea>
+</div>
+
+<div class="section">
+  <button onclick="submitForm()">ส่ง</button>
+</div>
+
+<!-- ===== THANK YOU MODAL ===== -->
+<div id="thankModal" class="modal">
+  <div class="modal-content">
+    <p id="thankText"></p>
+    <button onclick="closeModal()">ปิด</button>
+  </div>
+</div>
+<script>
+
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwGwFy7fcdwXE2-R5boyIjW-dJ9xM9O1Ex9PuyPzNtwrizcvyAUFOmPAKaYHz6TEw23/exec";
+function goToUpload() {
+  window.location.href = "upload.html";
+}
+
+window.onload = function () {
+  const slipData = sessionStorage.getItem("slipData");
+  if (slipData) {
+    const btn = document.getElementById("uploadBtn");
+    btn.innerText = "แนบสลิปแล้ว ✓";
+    btn.style.background = "green";
+  }
+};
+
+async function submitForm() {
+
+  const name = document.getElementById("name").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+  const message = document.getElementById("message").value.trim();
+  const side = document.querySelector('input[name="side"]:checked');
+  const attendance = document.querySelector('input[name="attendance"]:checked');
+  const slipData = sessionStorage.getItem("slipData");
+
+  if (!name || !amount || !side || !attendance) {
+    alert("กรอกข้อมูลให้ครบก่อนส่ง");
+    return;
+  }
+
+  if (!slipData) {
+    alert("กรุณาแนบสลิปก่อนส่ง");
+    return;
+  }
+
+  const payload = {
+    name: name,
+    amount: amount,
+    message: message,
+    side: side.value,
+    attendance: attendance.value,
+    slipBase64: slipData
+  };
+
+  try {
+
+    const response = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (result.result === "success") {
+
+      showThankYou(name, side.value, message);
+      resetForm();
+
+    } else {
+      alert("บันทึกข้อมูลไม่สำเร็จ");
+    }
+
+  } catch (error) {
+    alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+    console.error(error);
+  }
+}
+
+function showThankYou(name, side, message) {
+
+  const thankMessage = `
+    ขอขอบพระคุณ คุณ ${name}<br>
+    ${side}<br><br>
+    ขอบคุณสำหรับคำอวยพร<br>
+    "${message || '-'}"
+  `;
+
+  document.getElementById("thankText").innerHTML = thankMessage;
+  document.getElementById("thankModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("thankModal").style.display = "none";
+}
+
+function resetForm() {
+
+  document.getElementById("name").value = "";
+  document.getElementById("amount").value = "";
+  document.getElementById("message").value = "";
+
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+
+  sessionStorage.removeItem("slipData");
+
+  const btn = document.getElementById("uploadBtn");
+  btn.innerText = "แนบสลิป";
+  btn.style.background = "black";
+}
+
+</script>
+</body>
+</html>
