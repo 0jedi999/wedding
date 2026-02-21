@@ -172,7 +172,8 @@ button:disabled {
 </div>
 <script>
 
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbygP7yZtBk3vJniiiDBIPhWSQSgUr4YFUF28Zsdl8IaHq8QUj6PTqXiCL4CUvDxK5u5/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxb9NjLkvW23fuz5KglXMUjTSzUJi1vFpUVmrDGj1Me8LgCRoSnKWBlLZ4yxb_9J9vT/exec";
+
 function goToUpload() {
   window.location.href = "upload.html";
 }
@@ -218,19 +219,14 @@ async function submitForm() {
 
     const response = await fetch(WEBAPP_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload) // ❌ ไม่มี headers → ไม่เกิด preflight
     });
 
     const result = await response.json();
 
     if (result.result === "success") {
-
       showThankYou(name, side.value, message);
       resetForm();
-
     } else {
       alert("บันทึกข้อมูลไม่สำเร็จ");
     }
@@ -276,4 +272,5 @@ function resetForm() {
 </script>
 </body>
 </html>
+
 
