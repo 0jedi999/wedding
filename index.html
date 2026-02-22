@@ -43,8 +43,8 @@
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:center;justify-content:center}
     .modal-content{background:#fff;padding:20px;border-radius:12px;width:88%;max-width:420px;text-align:center}
 
-    /* loading overlay */
-    #loadingOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9998;display:flex;align-items:center;justify-content:center}
+    /* loading overlay - ensure default is hidden */
+    #loadingOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9998;align-items:center;justify-content:center}
     #loadingOverlay .box{background:#fff;padding:16px 20px;border-radius:10px;font-size:15px}
 
     @media (max-width:420px){body{margin:8px}}
@@ -240,7 +240,12 @@
       const el = document.getElementById('thankText');
       const safeName = escapeHtml(name);
       const safeMsg = escapeHtml(message) || '-';
-      const html = `\n        <strong>ขอขอบพระคุณ คุณ ${safeName}</strong><br>\n        ${escapeHtml(side)}<br><br>\n        ขอบคุณสำหรับคำอวยพร<br>\n        "${safeMsg}"\n      `;
+      const html = `
+        <strong>ขอขอบพระคุณ คุณ ${safeName}</strong><br>
+        ${escapeHtml(side)}<br><br>
+        ขอบคุณสำหรับคำอวยพร<br>
+        "${safeMsg}"
+      `;
       el.innerHTML = html;
       const modal = document.getElementById('thankModal');
       modal.style.display = 'flex';
