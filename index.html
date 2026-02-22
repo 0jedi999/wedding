@@ -198,7 +198,7 @@ window.onload = function () {
 /* ===========================
    บีบอัดรูปก่อนส่ง
 =========================== */
-function compressImage(base64, maxWidth = 1200, quality = 0.7) {
+function compressImage(base64, maxWidth = 1000, quality = 0.5) {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = base64;
@@ -235,8 +235,7 @@ async function submitForm() {
   if (isSubmitting) return;
   isSubmitting = true;
 
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
+  document.getElementById("submitBtn").disabled = true;
   document.getElementById("loadingOverlay").style.display = "flex";
 
   const name = document.getElementById("name").value.trim();
@@ -251,17 +250,13 @@ async function submitForm() {
     unlock();
     return;
   }
-  if (!slipData) {
-    alert("กรุณาแนบสลิปก่อนส่ง");
-    unlock();
-    return;
-  }
-  
 
   try {
 
-    // บีบอัดรูป
-    slipData = await compressImage(slipData);
+    // ถ้ามีรูป ค่อยบีบอัด
+    if (slipData) {
+      slipData = await compressImage(slipData);
+    }
 
     const payload = {
       name,
@@ -269,12 +264,11 @@ async function submitForm() {
       message,
       side: side.value,
       attendance: attendance.value,
-      slipBase64: slipData
+      slipBase64: slipData || ""
     };
 
-    // timeout 15 วิ
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(WEBAPP_URL, {
       method: "POST",
@@ -374,6 +368,7 @@ function resetForm() {
 </div>
 </body>
 </html>
+
 
 
 
