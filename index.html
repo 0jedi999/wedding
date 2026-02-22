@@ -251,6 +251,12 @@ async function submitForm() {
     unlock();
     return;
   }
+  if (!slipData) {
+    alert("กรุณาแนบสลิปก่อนส่ง");
+    unlock();
+    return;
+  }
+  
 
   try {
 
@@ -370,5 +376,6 @@ function resetForm() {
 </div>
 </body>
 </html>
+
 
 
